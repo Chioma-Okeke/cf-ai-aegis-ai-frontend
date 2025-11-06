@@ -10,9 +10,9 @@ function MainLayout() {
     return (
         <SidebarProvider>
             <AppSidebar />
-            <SidebarInset className='flex flex-col gap-2overflow-hidden h-screen'>
+            <SidebarInset className='flex flex-col gap-2 overflow-hidden h-screen transition-[margin] duration-300 ease-in-out'>
                 <Header />
-                <main className="flex-1 space-y-4 py-3 px-4 overflow-hidden h-full">
+                <main className="flex-1 py-3 px-4 overflow-hidden">
                     <Outlet />
                 </main>
             </SidebarInset>

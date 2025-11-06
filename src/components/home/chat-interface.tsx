@@ -13,28 +13,31 @@ import {
     Loader2,
     Paperclip,
     Mic,
-    MoreVertical
+    X
 } from 'lucide-react'
+import ChatService from '@/services/chat-service'
+import { useChatStore } from '@/store/chat-store'
+import type { IChatMessage } from '@/types'
+import Markdown from 'react-markdown'
 
-interface Message {
-    id: string
-    content: string
-    role: 'user' | 'assistant'
-    timestamp: Date
+interface ChatInterfaceProps {
+    setIsOpen: (open: boolean) => void
 }
 
-function ChatInterface() {
-    const [messages, setMessages] = useState<Message[]>([
-        {
-            id: '1',
-            content: "Hello! I'm AegisAI, your intelligent assistant. How can I help you today?",
-            role: 'assistant',
-            timestamp: new Date()
-        }
-    ])
+function ChatInterface({ setIsOpen }: ChatInterfaceProps) {
+    // const [messages, setMessages] = useState<Message[]>([
+    //     {
+    //         id: '1',
+    //         content: "Hello! I'm AegisAI, your intelligent assistant. How can I help you today?",
+    //         role: 'assistant',
+    //         timestamp: new Date()
+    //     }
+    // ])
     const [inputValue, setInputValue] = useState('')
+    const [sessionId, setSessionId] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const messagesEndRef = useRef<HTMLDivElement>(null)
+    const { messages, addMessage, code, language } = useChatStore();
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -45,30 +48,39 @@ function ChatInterface() {
     }, [messages])
 
     const handleSendMessage = async () => {
-        if (!inputValue.trim() || isLoading) return
+        try {
+            const chatService = new ChatService();
+            setIsLoading(true)
+            // if (!inputValue.trim() || isLoading) return
 
-        const userMessage: Message = {
-            id: Date.now().toString(),
-            content: inputValue,
-            role: 'user',
-            timestamp: new Date()
-        }
-
-        setMessages(prev => [...prev, userMessage])
-        setInputValue('')
-        setIsLoading(true)
-
-        // Simulate AI response
-        setTimeout(() => {
-            const assistantMessage: Message = {
-                id: (Date.now() + 1).toString(),
-                content: "I understand your question. This is a simulated response from AegisAI. In a real implementation, this would connect to your AI backend service.",
-                role: 'assistant',
-                timestamp: new Date()
+            const userMessage: IChatMessage = {
+                id: Date.now().toString(),
+                content: inputValue,
+                role: 'user',
             }
-            setMessages(prev => [...prev, assistantMessage])
+            addMessage(userMessage);
+            setInputValue('')
+
+            const aiResponse = await chatService.analyzeCode({
+                code: code,
+                message: inputValue,
+                language: language || 'javascript',
+            }, (sessionId ?? ''))
+
+            const assistantMessage: IChatMessage = {
+                id: aiResponse.sessionId,
+                content: aiResponse.response.response,
+                role: 'assistant',
+                timestamp: new Date().toISOString()
+            }
+            // setMessages(prev => [...prev, assistantMessage])
+            addMessage(assistantMessage)
+            setSessionId(aiResponse.sessionId);
+        } catch (error) {
+            console.error('Error sending message:', error)
+        } finally {
             setIsLoading(false)
-        }, 1500)
+        }
     }
 
     const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -91,7 +103,7 @@ function ChatInterface() {
     }
 
     return (
-        <div className="flex flex-col h-full max-h-[calc(100vh-76px)] w-full max-w-[450px] bg-background border rounded-lg">
+        <div className="flex flex-col h-full lg:max-h-[calc(100vh-76px)] w-full bg-background border rounded-lg">
             {/* Chat Header */}
             <div className="flex items-center justify-between p-4 border-b bg-card">
                 <div className="flex items-center gap-3">
@@ -103,8 +115,8 @@ function ChatInterface() {
                         <p className="text-sm text-muted-foreground">Online</p>
                     </div>
                 </div>
-                <Button variant="ghost" size="icon">
-                    <MoreVertical className="w-4 h-4" />
+                <Button variant="ghost" size="icon" className='lg:hidden' onClick={() => setIsOpen(false)}>
+                    <X className="w-4 h-4" />
                 </Button>
             </div>
 
@@ -124,16 +136,20 @@ function ChatInterface() {
                         <div className={`max-w-[80%] ${message.role === 'user' ? 'order-1' : ''}`}>
                             <div
                                 className={`rounded-lg p-3 ${message.role === 'user'
-                                        ? 'bg-primary text-primary-foreground'
-                                        : 'bg-muted'
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'bg-muted'
                                     }`}
                             >
-                                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                                {message.role === "assistant" ? (
+                                    <p className="text-sm whitespace-pre-wrap"><Markdown>{message.content}</Markdown></p>
+                                ) : (
+                                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                                )}
                             </div>
 
                             <div className={`flex items-center gap-2 mt-2 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 <span className="text-xs text-muted-foreground">
-                                    {formatTime(message.timestamp)}
+                                    {formatTime(message.timestamp ? new Date(message.timestamp) : new Date())}
                                 </span>
 
                                 {message.role === 'assistant' && (
@@ -200,7 +216,7 @@ function ChatInterface() {
                             placeholder="Type your message..."
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
-                            onKeyPress={handleKeyPress}
+                            onKeyDown={handleKeyPress}
                             disabled={isLoading}
                             className="min-h-10 resize-none pr-12"
                         />

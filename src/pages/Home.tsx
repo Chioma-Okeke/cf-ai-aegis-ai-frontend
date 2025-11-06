@@ -1,11 +1,11 @@
-import ChatInterface from "@/components/home/chat-interface"
 import CodeEditor from "@/components/home/code-editor"
+import RightPanel from "@/components/home/right-panel"
 
 function Home() {
     return (
-        <section className="flex gap-3 overflow-hidden h-full">
+        <section className="relative flex gap-3 h-full min-w-0">
             <CodeEditor />
-            <ChatInterface />
+            <RightPanel/>
         </section>
     )
 }
