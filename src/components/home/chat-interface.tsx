@@ -19,6 +19,7 @@ import ChatService from '@/services/chat-service'
 import { useChatStore } from '@/store/chat-store'
 import type { IChatMessage } from '@/types'
 import Markdown from 'react-markdown'
+import { jsonParser } from '@/lib/utils'
 
 interface ChatInterfaceProps {
     setIsOpen: (open: boolean) => void
@@ -34,10 +35,9 @@ function ChatInterface({ setIsOpen }: ChatInterfaceProps) {
     //     }
     // ])
     const [inputValue, setInputValue] = useState('')
-    const [sessionId, setSessionId] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const messagesEndRef = useRef<HTMLDivElement>(null)
-    const { messages, addMessage, code, language } = useChatStore();
+    const { messages, addMessage, code, language, addSessionId, sessionId, addFixedCode } = useChatStore();
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -51,7 +51,6 @@ function ChatInterface({ setIsOpen }: ChatInterfaceProps) {
         try {
             const chatService = new ChatService();
             setIsLoading(true)
-            // if (!inputValue.trim() || isLoading) return
 
             const userMessage: IChatMessage = {
                 id: Date.now().toString(),
@@ -67,15 +66,19 @@ function ChatInterface({ setIsOpen }: ChatInterfaceProps) {
                 language: language || 'javascript',
             }, (sessionId ?? ''))
 
+            const parsedAiResponse = jsonParser(aiResponse.response.response)
+            console.log(parsedAiResponse)
+
             const assistantMessage: IChatMessage = {
                 id: aiResponse.sessionId,
-                content: aiResponse.response.response,
+                content: parsedAiResponse.analysis,
+                notes: parsedAiResponse.notes,
                 role: 'assistant',
                 timestamp: new Date().toISOString()
             }
-            // setMessages(prev => [...prev, assistantMessage])
             addMessage(assistantMessage)
-            setSessionId(aiResponse.sessionId);
+            addSessionId?.(aiResponse.sessionId);
+            addFixedCode?.(parsedAiResponse.fixedCode);
         } catch (error) {
             console.error('Error sending message:', error)
         } finally {
@@ -141,7 +144,10 @@ function ChatInterface({ setIsOpen }: ChatInterfaceProps) {
                                     }`}
                             >
                                 {message.role === "assistant" ? (
-                                    <p className="text-sm whitespace-pre-wrap"><Markdown>{message.content}</Markdown></p>
+                                    <div className="text-sm whitespace-pre-wrap">
+                                        <Markdown>{message.content}</Markdown>
+                                        <Markdown>{message.notes}</Markdown>
+                                    </div>
                                 ) : (
                                     <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                                 )}

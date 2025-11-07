@@ -24,15 +24,21 @@ export interface IChatMessage {
     id?: string;
     content: string;
     timestamp?: string;
+    notes?: string;
     role: "user" | "assistant";
 }
 
 export interface IChatState {
-    messages: IChatMessage[];
-    addMessage: (message: IChatMessage) => void;
-    clearChat: () => void;
-    addCode: (code: string) => void;
     code: string;
     language?: string;
+    sessionId?: string;
+    fixedCode?: string;
+    messages: IChatMessage[];
+    clearChat: () => void;
+    addCode: (code: string) => void;
+    addFixedCode?: (code: string) => void;
     addLanguage: (language: string) => void;
+    addSessionId?: (sessionId: string) => void;
+    addMessage: (message: IChatMessage) => void;
+    clearAllData?: () => void;
 }

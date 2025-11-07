@@ -6,7 +6,7 @@ class ChatService extends BaseService {
         super("/chat");
     }
 
-    public async analyzeCode(data: ICodeAnalysisRequest, sessionId: string) {
+    public async analyzeCode(data: ICodeAnalysisRequest, sessionId?: string) {
         const res = await this.post<IAnalysisResponse, ICodeAnalysisRequest>(
             `/analyze?session=${sessionId}`,
             data
