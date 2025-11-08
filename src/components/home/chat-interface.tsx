@@ -26,14 +26,6 @@ interface ChatInterfaceProps {
 }
 
 function ChatInterface({ setIsOpen }: ChatInterfaceProps) {
-    // const [messages, setMessages] = useState<Message[]>([
-    //     {
-    //         id: '1',
-    //         content: "Hello! I'm AegisAI, your intelligent assistant. How can I help you today?",
-    //         role: 'assistant',
-    //         timestamp: new Date()
-    //     }
-    // ])
     const [inputValue, setInputValue] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -107,7 +99,6 @@ function ChatInterface({ setIsOpen }: ChatInterfaceProps) {
 
     return (
         <div className="flex flex-col h-full lg:max-h-[calc(100vh-76px)] w-full bg-background border rounded-lg">
-            {/* Chat Header */}
             <div className="flex items-center justify-between p-4 border-b bg-card">
                 <div className="flex items-center gap-3">
                     <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary">
@@ -123,7 +114,6 @@ function ChatInterface({ setIsOpen }: ChatInterfaceProps) {
                 </Button>
             </div>
 
-            {/* Messages Container */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.map((message) => (
                     <div
@@ -146,7 +136,14 @@ function ChatInterface({ setIsOpen }: ChatInterfaceProps) {
                                 {message.role === "assistant" ? (
                                     <div className="text-sm whitespace-pre-wrap">
                                         <Markdown>{message.content}</Markdown>
-                                        <Markdown>{message.notes}</Markdown>
+                                        {
+                                            message.notes && (
+                                                <div>
+                                                    <strong>Notes:</strong>
+                                                    <Markdown>{message.notes}</Markdown>
+                                                </div>
+                                            )
+                                        }
                                     </div>
                                 ) : (
                                     <p className="text-sm whitespace-pre-wrap">{message.content}</p>
@@ -206,7 +203,6 @@ function ChatInterface({ setIsOpen }: ChatInterfaceProps) {
 
             <Separator />
 
-            {/* Input Area */}
             <div className="p-4 bg-card">
                 <div className="flex items-end gap-2">
                     <Button variant="ghost" size="icon" className="shrink-0">

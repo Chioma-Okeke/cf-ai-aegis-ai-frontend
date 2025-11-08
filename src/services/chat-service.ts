@@ -1,4 +1,4 @@
-import type { IAnalysisResponse, ICodeAnalysisRequest } from "@/types";
+import type { IAnalysisResponse, ICodeAnalysisRequest, IGetChats } from "@/types";
 import { BaseService } from "./base-service";
 
 class ChatService extends BaseService {
@@ -14,8 +14,8 @@ class ChatService extends BaseService {
         return res;
     }
 
-    public async getChatHistory() {
-        const res = await this.get<IAnalysisResponse[]>("/history");
+    public async getChatHistory(sessionId?: string) {
+        const res = await this.get<IGetChats>(`/history?session=${sessionId}`);
         return res;
     }
 }

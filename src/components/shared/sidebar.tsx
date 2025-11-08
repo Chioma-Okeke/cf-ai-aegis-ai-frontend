@@ -1,13 +1,15 @@
 import { useLocation, useNavigate } from "react-router-dom"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
-import { FileText, User } from "lucide-react"
+import { Edit, FileText, User } from "lucide-react"
 import { navigationItems } from "@/lib/constants"
+import { useChatStore } from "@/store/chat-store"
 
 export function AppSidebar() {
     const navigate = useNavigate()
     const location = useLocation()
+    const { clearChat } = useChatStore();
     return (
-        <Sidebar> 
+        <Sidebar>
             <SidebarHeader>
                 <div className="flex items-center gap-2 px-4 py-2">
                     <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
@@ -19,9 +21,21 @@ export function AppSidebar() {
                 </div>
             </SidebarHeader>
 
-            <SidebarContent>
+            <SidebarContent className="mt-5">
                 <SidebarGroup>
-                    <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton onClick={clearChat}>
+                                    <Edit />
+                                    <span>New Chat</span>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+                <SidebarGroup>
+                    <SidebarGroupLabel>Chats</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {navigationItems.map((item) => (

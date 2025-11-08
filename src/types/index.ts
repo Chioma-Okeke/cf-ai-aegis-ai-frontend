@@ -1,3 +1,17 @@
+export interface IGetChats {
+    code: string;
+    language: string;
+    history: IChatHistory[];
+}
+
+export interface IChatHistory {
+    original: string;
+    language: string;
+    response: IResponse;
+    userMessage?: string;
+    sessionId: string;
+}
+
 export interface IAnalysisResponse {
     response: IResponse;
     sessionId: string;
@@ -34,6 +48,7 @@ export interface IChatState {
     sessionId?: string;
     fixedCode?: string;
     messages: IChatMessage[];
+    history: IChatHistory[];
     clearChat: () => void;
     addCode: (code: string) => void;
     addFixedCode?: (code: string) => void;

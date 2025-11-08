@@ -1,4 +1,4 @@
-import { FileText, Home, Settings } from "lucide-react";
+import { Home } from "lucide-react";
 
 export const navigationItems = [
     {
@@ -6,16 +6,16 @@ export const navigationItems = [
         icon: Home,
         url: "/",
     },
-    {
-        title: "Review",
-        icon: FileText,
-        url: "/review",
-    },
-    {
-        title: "Settings",
-        icon: Settings,
-        url: "/settings",
-    },
+    // {
+    //     title: "Review",
+    //     icon: FileText,
+    //     url: "/review",
+    // },
+    // {
+    //     title: "Settings",
+    //     icon: Settings,
+    //     url: "/settings",
+    // },
 ];
 
 export const programmingLanguages = [
@@ -34,4 +34,4 @@ export const programmingLanguages = [
     "Dart",
     "Scala",
     "Perl",
-]
+];
